@@ -4,6 +4,7 @@ Full monorepo layout actually scaffolded on disk (empty stub files, each with a 
 
 > **Scope decision:** `categories`, `products`, `cart`, `wishlist`, `orders`, and `events` modules were intentionally left out of both `backend/` and `frontend/` — not an oversight. Add them back the same way (module/schema/controller/service/dto folders) if the catalog/checkout side gets built later.
 
+```
 ecommerce-ai-platform/
 │
 ├── README.md
@@ -515,6 +516,7 @@ ecommerce-ai-platform/
     ├── settings.json
     ├── extensions.json
     └── launch.json
+```
 
 ## Root
 
