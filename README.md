@@ -17,3 +17,64 @@ Final Year Project: an AI-powered e-commerce platform that personalizes the shop
 - **Backend:** NestJS + TypeScript, Mongoose, MongoDB, JWT auth
 - **ML Service:** Python 3.11 + FastAPI (recommendation + forecasting models)
 - **Docs:** see [guide/ecommerce-ai-fyp-setup-guide.md](guide/ecommerce-ai-fyp-setup-guide.md) for the full setup, architecture, and build roadmap.
+
+## Production Architecture
+
+```
+                    INTERNET
+                       │
+                       ▼
+              ┌─────────────────┐
+              │   Frontend      │
+              │ React + Vite    │
+              │ Vercel/Netlify  │
+              └────────┬────────┘
+                       │ HTTPS
+                       ▼
+              ┌─────────────────┐
+              │    Backend      │
+              │ NestJS API      │
+              │ Render/Railway  │
+              └───────┬─────────┘
+                      │
+          ┌───────────┴───────────┐
+          │                       │
+          ▼                       ▼
+ ┌─────────────────┐     ┌─────────────────┐
+ │    MongoDB      │     │   ML Service    │
+ │   Atlas         │     │ Python FastAPI  │
+ │                 │     │ Render/Railway  │
+ └─────────────────┘     └─────────────────┘
+                                  │
+                                  ▼
+                         ┌─────────────────┐
+                         │ Trained Models  │
+                         │ .joblib/.pkl    │
+                         └─────────────────┘
+```
+
+## Git Workflow
+
+```
+                 ┌── feature/A ──┐
+                 │               ↓
+main ──→ develop ├── feature/B ─→ develop
+                 │               ↑
+                 └── feature/C ──┘
+                         │
+                         ↓
+                   release/v1.0
+                         │
+                         ↓
+                         QA
+                         │
+                    ┌────┴────┐
+                    │         │
+                  FAIL       PASS
+                    │         │
+                    ↓         ↓
+              release fix    main
+                              │
+                              ↓
+                         Production
+```
