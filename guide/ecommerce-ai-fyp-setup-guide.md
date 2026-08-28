@@ -1,7 +1,13 @@
 # AI-Powered E-Commerce Recommendation & Demand Prediction System
 ## Complete Setup, Design & Build Guide (FYP Roadmap)
 
-**Stack:** React + NestJS + MongoDB + Python (FastAPI ML Service)
+> **⚠️ STACK UPDATE (v2).** Yeh guide originally **React+Vite / NestJS / MongoDB** ke liye likhi gayi thi. Architecture ab **Next.js 16 (App Router) / FastAPI ×2 / PostgreSQL 17 + Meilisearch** par shift ho chuki hai.
+> - Authoritative design ab in docs mein hai: [`../docs/03-architecture.md`](../docs/03-architecture.md), [`../docs/04-api-contract.md`](../docs/04-api-contract.md), [`../docs/05-database-design.md`](../docs/05-database-design.md), [`../docs/06-ml-design.md`](../docs/06-ml-design.md), [`../docs/11-search-design.md`](../docs/11-search-design.md), [`../docs/08-deployment.md`](../docs/08-deployment.md), aur [`architure-solution/project-file-structure.md`](architure-solution/project-file-structure.md).
+> - **Jo cheezein wesi hi valid hain:** 4 modules aur scope (§1), data strategy (§7), ML methodology — recommendation levels, forecasting levels, features, evaluation protocol (§9–§14, §17). In sections ko stack-agnostic samajh kar parhein.
+> - **Jo replace ho gaya:** §2 tech stack, §4 repo structure, §6.2 architecture diagram, §6.3 "MongoDB collections", §8 "NestJS build order", §11 "React/Vite build order", §6.4 endpoint list ka NestJS phrasing. In ke liye upar-wale docs dekhein.
+> - Mapping table: MongoDB collections → PostgreSQL tables `../docs/05-database-design.md` §9 mein hai.
+
+**Stack (v1, historical):** React + NestJS + MongoDB + Python (FastAPI ML Service)
 **Guide ka maqsad:** aap ko step-by-step batana ke project kahan se start karna hai, kya kya design karna hai, kis order mein banana hai, aur kis cheez par kitna time dena hai.
 
 ---
