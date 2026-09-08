@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 import { env } from "@/lib/env";
 import { ACCESS_COOKIE } from "@/lib/session";
@@ -63,4 +64,15 @@ export async function apiFetch<T>(path: string, opts: FetchOptions = {}): Promis
       ...opts.headers,
     },
   });
+}
+
+/** Render an ApiError as the standard `{error:{...}}` JSON response with its status. */
+export function apiErrorResponse(err: unknown): NextResponse {
+  if (err instanceof ApiError) {
+    return NextResponse.json(
+      { error: { code: err.code, message: err.message, details: err.details } },
+      { status: err.status },
+    );
+  }
+  throw err;
 }

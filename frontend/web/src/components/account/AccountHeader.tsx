@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Boxes, ChevronDown, LogOut } from "lucide-react";
+import { Boxes, ChevronDown, LogOut, User as UserIcon } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -54,6 +54,13 @@ export function AccountHeader({ user }: { user: User }) {
           {open && (
             <div className="absolute right-0 mt-2 w-52 rounded-card border border-border bg-surface p-1.5 shadow-card-lg">
               <div className="truncate px-3 pb-1.5 pt-1 text-xs text-muted">{user.email}</div>
+              <Link
+                href="/account/profile"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-body hover:bg-surface-muted hover:text-foreground"
+              >
+                <UserIcon size={16} /> My profile
+              </Link>
               <button
                 type="button"
                 onClick={handleLogout}

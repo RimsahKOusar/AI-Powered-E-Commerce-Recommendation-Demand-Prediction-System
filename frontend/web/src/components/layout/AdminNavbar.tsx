@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, LogOut, Menu, Search, Settings, User as UserIcon } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
@@ -24,9 +25,17 @@ export function AdminNavbar({
   user: User;
   onOpenMobileMenu: () => void;
 }) {
+  const router = useRouter();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [query, setQuery] = useState("");
+
+  function onSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" && query.trim()) {
+      router.push(`/admin/products?q=${encodeURIComponent(query.trim())}`);
+    }
+  }
 
   async function handleLogout() {
     setLoggingOut(true);
@@ -54,7 +63,10 @@ export function AdminNavbar({
         <Search size={16} className="pointer-events-none absolute left-3 text-muted" />
         <input
           type="search"
-          placeholder="Search orders, products, customers…"
+          placeholder="Search products… (press Enter)"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={onSearchKeyDown}
           className="w-full rounded-lg border border-border bg-surface-alt py-2 pl-9 pr-3 text-sm text-foreground outline-none placeholder:text-muted focus:border-primary"
         />
       </label>
@@ -132,7 +144,7 @@ export function AdminNavbar({
             <div className="absolute right-0 mt-2 w-56 rounded-card border border-border bg-surface p-1.5 shadow-card-lg">
               <div className="truncate px-3 pb-1.5 pt-1 text-xs text-muted">{user.email}</div>
               <a
-                href="#"
+                href="/account/profile"
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-body hover:bg-surface-muted hover:text-foreground"
               >
                 <UserIcon size={16} /> My profile
