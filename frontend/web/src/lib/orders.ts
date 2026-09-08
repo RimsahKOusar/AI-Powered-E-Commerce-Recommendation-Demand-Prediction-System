@@ -26,3 +26,13 @@ export async function listCustomersAdmin(
 ): Promise<Paginated<Customer>> {
   return apiFetch<Paginated<Customer>>(`/admin/customers${toSearchParams(query)}`);
 }
+
+export async function listMyOrders(
+  query: { page?: number; page_size?: number } = {},
+): Promise<Paginated<Order>> {
+  return apiFetch<Paginated<Order>>(`/orders${toSearchParams(query)}`);
+}
+
+export async function getMyOrder(orderId: string): Promise<Order> {
+  return apiFetch<Order>(`/orders/${orderId}`);
+}

@@ -8,7 +8,7 @@ import { getCurrentUser } from "@/lib/dal";
 export default async function AuthLayout({ children }: { children: ReactNode }) {
   const user = await getCurrentUser();
   if (user) {
-    redirect(user.role === "admin" ? "/admin" : "/account");
+    redirect(user.role === "admin" ? "/admin" : "/");
   }
 
   return (

@@ -73,7 +73,7 @@ export function VerifyEmailForm({ email }: { email: string }) {
       }
 
       // Full navigation — see LoginForm for why this isn't router.push().
-      window.location.href = data.role === "admin" ? "/admin" : "/account";
+      window.location.href = data.role === "admin" ? "/admin" : "/";
     } catch {
       setError("Could not reach the server.");
     } finally {

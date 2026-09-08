@@ -11,7 +11,7 @@ export default async function VerifyEmailPage() {
   const user = await requireUser();
 
   if (user.is_email_verified) {
-    redirect(user.role === "admin" ? "/admin" : "/account");
+    redirect(user.role === "admin" ? "/admin" : "/");
   }
 
   return (
