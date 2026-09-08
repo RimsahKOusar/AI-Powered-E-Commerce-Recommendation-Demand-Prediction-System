@@ -1,5 +1,7 @@
 export type OrderStatus = "pending" | "paid" | "shipped" | "delivered" | "cancelled" | "refunded";
 
+export type OrderLineItem = { title: string; sku: string; qty: number; price: number };
+
 export type Order = {
   id: string;
   customer: string;
@@ -9,18 +11,61 @@ export type Order = {
   status: OrderStatus;
   paymentMethod: string;
   placedAt: string;
+  shippingAddress: string;
+  lineItems: OrderLineItem[];
 };
 
-export const orders: Order[] = [
-  { id: "ORD-8841", customer: "Ayesha Raza", email: "ayesha.raza@example.com", items: 3, amount: 42_500, status: "paid", paymentMethod: "COD", placedAt: "2026-09-08 09:12" },
-  { id: "ORD-8840", customer: "Bilal Ahmed", email: "bilal.ahmed@example.com", items: 1, amount: 8_900, status: "pending", paymentMethod: "COD", placedAt: "2026-09-08 08:47" },
-  { id: "ORD-8839", customer: "Sana Tariq", email: "sana.tariq@example.com", items: 2, amount: 61_200, status: "shipped", paymentMethod: "Card", placedAt: "2026-09-08 07:58" },
-  { id: "ORD-8838", customer: "Usman Khalid", email: "usman.khalid@example.com", items: 1, amount: 15_750, status: "paid", paymentMethod: "COD", placedAt: "2026-09-08 06:20" },
-  { id: "ORD-8837", customer: "Fatima Noor", email: "fatima.noor@example.com", items: 1, amount: 3_400, status: "cancelled", paymentMethod: "Card", placedAt: "2026-09-08 05:41" },
-  { id: "ORD-8836", customer: "Hamza Sheikh", email: "hamza.sheikh@example.com", items: 4, amount: 96_100, status: "delivered", paymentMethod: "Card", placedAt: "2026-09-07 22:03" },
-  { id: "ORD-8835", customer: "Mahnoor Ali", email: "mahnoor.ali@example.com", items: 2, amount: 27_300, status: "delivered", paymentMethod: "COD", placedAt: "2026-09-07 20:15" },
-  { id: "ORD-8834", customer: "Zainab Malik", email: "zainab.malik@example.com", items: 1, amount: 6_800, status: "refunded", paymentMethod: "Card", placedAt: "2026-09-07 18:32" },
+const CUSTOMERS = [
+  "Ayesha Raza", "Bilal Ahmed", "Sana Tariq", "Usman Khalid", "Fatima Noor",
+  "Hamza Sheikh", "Mahnoor Ali", "Zainab Malik", "Ahmed Raza", "Iqra Siddiqui",
+  "Omar Farooq", "Rabia Yousuf",
 ];
+
+const STATUSES: OrderStatus[] = ["pending", "paid", "shipped", "delivered", "cancelled", "refunded"];
+const PAYMENTS = ["COD", "Card"];
+
+const CATALOG: OrderLineItem[] = [
+  { title: "ASUS TUF Gaming F15 Laptop", sku: "LAP-ASUS-TUF-001", qty: 1, price: 189_999 },
+  { title: "Anker Soundcore Q30 Headphones", sku: "AUD-ANK-Q30-014", qty: 1, price: 12_500 },
+  { title: "Xiaomi Mi Band 8", sku: "WBL-XMI-MB8-002", qty: 1, price: 6_800 },
+  { title: "Nike Air Zoom Pegasus", sku: "SHO-NIK-PEG-039", qty: 1, price: 24_900 },
+  { title: "Samsung Galaxy A54", sku: "PHN-SAM-A54-011", qty: 1, price: 89_999 },
+  { title: "Levi's 501 Original Jeans", sku: "CLO-LEV-501-004", qty: 1, price: 8_900 },
+];
+
+const CITIES = ["Lahore", "Karachi", "Islamabad", "Faisalabad", "Multan", "Peshawar"];
+
+function lineItemsFor(seed: number): OrderLineItem[] {
+  const count = (seed % 3) + 1;
+  const items: OrderLineItem[] = [];
+  for (let i = 0; i < count; i++) {
+    const base = CATALOG[(seed + i) % CATALOG.length];
+    items.push({ ...base, qty: ((seed + i) % 3) + 1 });
+  }
+  return items;
+}
+
+export const orders: Order[] = Array.from({ length: 32 }, (_, i) => {
+  const seed = 8841 - i;
+  const customer = CUSTOMERS[i % CUSTOMERS.length];
+  const lineItems = lineItemsFor(seed);
+  const amount = lineItems.reduce((sum, li) => sum + li.price * li.qty, 0);
+  const daysAgo = Math.floor(i / 3);
+  const hour = 22 - (i % 12);
+
+  return {
+    id: `ORD-${seed}`,
+    customer,
+    email: `${customer.toLowerCase().replace(/[^a-z]+/g, ".")}example.com`.replace(".example.com", "@example.com"),
+    items: lineItems.reduce((n, li) => n + li.qty, 0),
+    amount,
+    status: STATUSES[i % STATUSES.length],
+    paymentMethod: PAYMENTS[i % PAYMENTS.length],
+    placedAt: `2026-09-${String(8 - daysAgo).padStart(2, "0")} ${String(Math.max(hour, 0)).padStart(2, "0")}:${String((i * 7) % 60).padStart(2, "0")}`,
+    shippingAddress: `House ${12 + i}, Block ${String.fromCharCode(65 + (i % 6))}, ${CITIES[i % CITIES.length]}, Pakistan`,
+    lineItems,
+  };
+});
 
 export const STATUS_TONE: Record<OrderStatus, "success" | "warning" | "info" | "danger" | "neutral"> = {
   pending: "warning",

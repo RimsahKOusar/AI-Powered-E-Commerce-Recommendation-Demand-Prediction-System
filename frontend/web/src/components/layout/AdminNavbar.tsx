@@ -128,7 +128,7 @@ export function AdminNavbar({
             }}
             className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 hover:bg-surface-muted"
           >
-            <Avatar name={user.full_name} size={32} />
+            <Avatar name={user.full_name} size={32} status="online" />
             <span className="hidden text-left sm:block">
               <span className="block max-w-[9rem] truncate text-sm font-medium leading-tight text-foreground">
                 {user.full_name}
@@ -141,7 +141,17 @@ export function AdminNavbar({
           </button>
 
           {userOpen && (
-            <div className="absolute right-0 mt-2 w-56 rounded-card border border-border bg-surface p-1.5 shadow-card-lg">
+            <div className="absolute right-0 mt-2 w-64 rounded-card border border-border bg-surface p-1.5 shadow-card-lg">
+              <div className="flex items-center gap-3 px-3 py-3">
+                <Avatar name={user.full_name} size={40} status="online" />
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold text-foreground">
+                    {user.full_name}
+                  </div>
+                  <div className="truncate text-xs capitalize text-muted">{user.role}</div>
+                </div>
+              </div>
+              <div className="mb-1 border-t border-border" />
               <div className="truncate px-3 pb-1.5 pt-1 text-xs text-muted">{user.email}</div>
               <a
                 href="/account/profile"

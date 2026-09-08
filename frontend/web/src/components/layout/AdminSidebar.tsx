@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Boxes, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
+import { Boxes, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 
 import { ADMIN_NAV } from "@/lib/nav-config";
 import { cn } from "@/lib/utils";
@@ -42,8 +42,11 @@ export function AdminSidebar({
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         )}
       >
-        <div className="flex h-16 shrink-0 items-center justify-between px-4">
-          <Link href="/admin" className="flex items-center gap-2.5 overflow-hidden">
+        <div className="relative flex h-16 shrink-0 items-center justify-between px-4">
+          <Link
+            href="/admin"
+            className={cn("flex items-center gap-2.5 overflow-hidden", !collapsed && "lg:pr-6")}
+          >
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-fg">
               <Boxes size={18} />
             </span>
@@ -53,6 +56,20 @@ export function AdminSidebar({
               </span>
             )}
           </Link>
+
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            aria-label={collapsed ? "Expand menu" : "Collapse menu"}
+            className={cn(
+              "absolute top-1/2 hidden h-6 w-6 -translate-y-1/2 place-items-center rounded-full",
+              "border border-border bg-surface text-muted shadow-card hover:text-foreground lg:grid",
+              collapsed ? "-right-3" : "right-4",
+            )}
+          >
+            {collapsed ? <ChevronRight size={13} /> : <ChevronLeft size={13} />}
+          </button>
+
           <button
             type="button"
             onClick={onCloseMobile}

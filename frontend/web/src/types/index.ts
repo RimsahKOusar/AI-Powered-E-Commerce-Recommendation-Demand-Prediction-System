@@ -5,6 +5,7 @@ export type User = {
   email: string;
   full_name: string;
   role: UserRole;
+  is_email_verified: boolean;
 };
 
 export type TokenPair = {

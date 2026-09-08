@@ -16,10 +16,13 @@ function toneFor(seed: string) {
 export function Avatar({
   name,
   size = 36,
+  status,
   className,
 }: {
   name: string;
   size?: number;
+  /** Small status dot in the bottom-right corner, e.g. "online". */
+  status?: "online" | "offline";
   className?: string;
 }) {
   const initials = name
@@ -30,15 +33,31 @@ export function Avatar({
     .toUpperCase();
 
   return (
-    <span
-      className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-full font-semibold",
-        toneFor(name),
-        className,
+    <span className="relative inline-flex shrink-0" style={{ width: size, height: size }}>
+      <span
+        className={cn(
+          "inline-flex h-full w-full items-center justify-center rounded-full font-semibold",
+          toneFor(name),
+          className,
+        )}
+        style={{ fontSize: size * 0.4 }}
+      >
+        {initials}
+      </span>
+      {status && (
+        <span
+          className={cn(
+            "absolute rounded-full ring-2 ring-surface",
+            status === "online" ? "bg-success" : "bg-muted",
+          )}
+          style={{
+            width: Math.max(size * 0.28, 8),
+            height: Math.max(size * 0.28, 8),
+            right: -1,
+            bottom: -1,
+          }}
+        />
       )}
-      style={{ width: size, height: size, fontSize: size * 0.4 }}
-    >
-      {initials}
     </span>
   );
 }
