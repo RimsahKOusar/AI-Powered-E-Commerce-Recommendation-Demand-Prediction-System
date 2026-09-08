@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
 
 import { AdminShell } from "@/components/layout/AdminShell";
+import { requireAdmin } from "@/lib/dal";
 
-// requireAdmin() lands in Phase 2 once /auth/me is wired to this app.
-export default function AdminLayout({ children }: { children: ReactNode }) {
-  return <AdminShell>{children}</AdminShell>;
+export default async function AdminLayout({ children }: { children: ReactNode }) {
+  const user = await requireAdmin();
+  return <AdminShell user={user}>{children}</AdminShell>;
 }

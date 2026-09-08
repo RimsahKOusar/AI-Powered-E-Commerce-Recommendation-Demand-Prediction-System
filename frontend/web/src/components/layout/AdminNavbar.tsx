@@ -1,12 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Bell, ChevronDown, LogOut, Menu, Search, Settings, User } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Bell, ChevronDown, LogOut, Menu, Search, Settings, User as UserIcon } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { IconButton } from "@/components/ui/IconButton";
 import { cn } from "@/lib/utils";
+import type { User } from "@/types";
 
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -16,9 +18,27 @@ const NOTIFICATIONS = [
   { title: "Model retrained", detail: "Recommender v1.4 activated", time: "2h ago", tone: "primary" as const },
 ];
 
-export function AdminNavbar({ onOpenMobileMenu }: { onOpenMobileMenu: () => void }) {
+export function AdminNavbar({
+  user,
+  onOpenMobileMenu,
+}: {
+  user: User;
+  onOpenMobileMenu: () => void;
+}) {
+  const router = useRouter();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      router.push("/login");
+      router.refresh();
+    }
+  }
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur-md sm:px-6">
@@ -97,35 +117,42 @@ export function AdminNavbar({ onOpenMobileMenu }: { onOpenMobileMenu: () => void
             }}
             className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 hover:bg-surface-muted"
           >
-            <Avatar name="Admin User" size={32} />
+            <Avatar name={user.full_name} size={32} />
             <span className="hidden text-left sm:block">
-              <span className="block text-sm font-medium leading-tight text-foreground">Admin</span>
-              <span className="block text-[0.7rem] leading-tight text-muted">Administrator</span>
+              <span className="block max-w-[9rem] truncate text-sm font-medium leading-tight text-foreground">
+                {user.full_name}
+              </span>
+              <span className="block text-[0.7rem] capitalize leading-tight text-muted">
+                {user.role}
+              </span>
             </span>
             <ChevronDown size={14} className="hidden text-muted sm:block" />
           </button>
 
           {userOpen && (
             <div className="absolute right-0 mt-2 w-56 rounded-card border border-border bg-surface p-1.5 shadow-card-lg">
+              <div className="truncate px-3 pb-1.5 pt-1 text-xs text-muted">{user.email}</div>
               <a
                 href="#"
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-body hover:bg-surface-muted hover:text-foreground"
               >
-                <User size={16} /> My profile
+                <UserIcon size={16} /> My profile
               </a>
               <a
-                href="#"
+                href="/admin/settings"
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-body hover:bg-surface-muted hover:text-foreground"
               >
                 <Settings size={16} /> Settings
               </a>
               <div className="my-1 border-t border-border" />
-              <a
-                href="#"
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-danger hover:bg-danger-soft"
+              <button
+                type="button"
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm text-danger hover:bg-danger-soft disabled:opacity-60"
               >
-                <LogOut size={16} /> Log out
-              </a>
+                <LogOut size={16} /> {loggingOut ? "Logging out…" : "Log out"}
+              </button>
             </div>
           )}
         </div>

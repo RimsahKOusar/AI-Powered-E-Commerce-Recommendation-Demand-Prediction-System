@@ -3,11 +3,12 @@
 import { useState, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
+import type { User } from "@/types";
 
 import { AdminNavbar } from "./AdminNavbar";
 import { AdminSidebar } from "./AdminSidebar";
 
-export function AdminShell({ children }: { children: ReactNode }) {
+export function AdminShell({ user, children }: { user: User; children: ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -26,7 +27,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
           collapsed ? "lg:ml-[68px]" : "lg:ml-[260px]",
         )}
       >
-        <AdminNavbar onOpenMobileMenu={() => setMobileOpen(true)} />
+        <AdminNavbar user={user} onOpenMobileMenu={() => setMobileOpen(true)} />
         <main className="flex-1 p-4 sm:p-6">{children}</main>
       </div>
     </div>
