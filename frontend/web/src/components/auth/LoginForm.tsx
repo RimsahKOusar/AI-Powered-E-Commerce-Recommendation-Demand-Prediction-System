@@ -2,14 +2,12 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 
 export function LoginForm() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -33,11 +31,12 @@ export function LoginForm() {
         return;
       }
 
-      router.push(data.user.role === "admin" ? "/admin" : "/");
-      router.refresh();
+      // Full navigation (not router.push) — guarantees the destination's Server
+      // Components re-render with the cookies this response just set, instead of
+      // possibly serving the pre-login page from the client router cache.
+      window.location.href = data.user.role === "admin" ? "/admin" : "/";
     } catch {
       setError("Could not reach the server. Is core-api running?");
-    } finally {
       setLoading(false);
     }
   }

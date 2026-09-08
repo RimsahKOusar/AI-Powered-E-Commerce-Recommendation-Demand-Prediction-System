@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Bell, ChevronDown, LogOut, Menu, Search, Settings, User as UserIcon } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
@@ -25,7 +24,6 @@ export function AdminNavbar({
   user: User;
   onOpenMobileMenu: () => void;
 }) {
-  const router = useRouter();
   const [notifOpen, setNotifOpen] = useState(false);
   const [userOpen, setUserOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
@@ -35,8 +33,9 @@ export function AdminNavbar({
     try {
       await fetch("/api/auth/logout", { method: "POST" });
     } finally {
-      router.push("/login");
-      router.refresh();
+      // Full navigation — see LoginForm for why this isn't router.push().
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.href = "/login";
     }
   }
 

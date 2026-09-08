@@ -2,14 +2,12 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 
 export function RegisterForm() {
-  const router = useRouter();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -34,11 +32,11 @@ export function RegisterForm() {
         return;
       }
 
-      router.push("/");
-      router.refresh();
+      // Full navigation — see LoginForm for why this isn't router.push().
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+      window.location.href = "/";
     } catch {
       setError("Could not reach the server. Is core-api running?");
-    } finally {
       setLoading(false);
     }
   }
