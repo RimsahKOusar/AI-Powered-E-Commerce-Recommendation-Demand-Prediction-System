@@ -42,7 +42,7 @@ export function AccountHeader({ user }: { user: User }) {
             onClick={() => setOpen((v) => !v)}
             className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 hover:bg-surface-muted"
           >
-            <Avatar name={user.full_name} size={32} status="online" />
+            <Avatar name={user.full_name} imageUrl={user.avatar_url} size={32} status="online" />
             <span className="hidden text-left sm:block">
               <span className="block max-w-[9rem] truncate text-sm font-medium leading-tight text-foreground">
                 {user.full_name}
@@ -54,7 +54,7 @@ export function AccountHeader({ user }: { user: User }) {
           {open && (
             <div className="absolute right-0 mt-2 w-64 rounded-card border border-border bg-surface p-1.5 shadow-card-lg">
               <div className="flex items-center gap-3 px-3 py-3">
-                <Avatar name={user.full_name} size={40} status="online" />
+                <Avatar name={user.full_name} imageUrl={user.avatar_url} size={40} status="online" />
                 <div className="min-w-0">
                   <div className="truncate text-sm font-semibold text-foreground">
                     {user.full_name}

@@ -4,6 +4,10 @@ export type User = {
   id: string;
   email: string;
   full_name: string;
+  phone: string | null;
+  address: string | null;
+  avatar_url: string | null;
+  cover_image_url: string | null;
   role: UserRole;
   is_email_verified: boolean;
 };

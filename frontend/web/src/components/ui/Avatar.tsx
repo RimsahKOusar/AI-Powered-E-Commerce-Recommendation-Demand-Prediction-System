@@ -15,11 +15,13 @@ function toneFor(seed: string) {
 
 export function Avatar({
   name,
+  imageUrl,
   size = 36,
   status,
   className,
 }: {
   name: string;
+  imageUrl?: string | null;
   size?: number;
   /** Small status dot in the bottom-right corner, e.g. "online". */
   status?: "online" | "offline";
@@ -42,7 +44,12 @@ export function Avatar({
         )}
         style={{ fontSize: size * 0.4 }}
       >
-        {initials}
+        {imageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element -- user-provided S3 image URL
+          <img src={imageUrl} alt="" className="h-full w-full rounded-full object-cover" />
+        ) : (
+          initials
+        )}
       </span>
       {status && (
         <span

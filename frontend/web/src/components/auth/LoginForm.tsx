@@ -81,6 +81,12 @@ export function LoginForm() {
       </form>
 
       <p className="mt-5 text-center text-sm text-muted">
+        <Link href="/forgot-password" className="font-semibold text-primary-hover">
+          Forgot password?
+        </Link>
+      </p>
+
+      <p className="mt-3 text-center text-sm text-muted">
         Don&apos;t have an account?{" "}
         <Link href="/register" className="font-semibold text-primary-hover">
           Create one

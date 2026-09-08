@@ -45,7 +45,7 @@ export function OrdersTable({ initial }: { initial: Paginated<Order> }) {
     async (page: number, mode: "replace" | "append", filters: { q: string; status: OrderStatus | "" }) => {
       setLoading(true);
       try {
-        const params = new URLSearchParams({ page: String(page), page_size: "8" });
+        const params = new URLSearchParams({ page: String(page), page_size: "10" });
         if (filters.q) params.set("q", filters.q);
         if (filters.status) params.set("status", filters.status);
 

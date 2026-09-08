@@ -154,7 +154,7 @@ export function AdminNavbar({
               <div className="mb-1 border-t border-border" />
               <div className="truncate px-3 pb-1.5 pt-1 text-xs text-muted">{user.email}</div>
               <a
-                href="/account/profile"
+                href="/admin/profile"
                 className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-body hover:bg-surface-muted hover:text-foreground"
               >
                 <UserIcon size={16} /> My profile

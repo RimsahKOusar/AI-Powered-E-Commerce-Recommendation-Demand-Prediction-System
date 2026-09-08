@@ -6,7 +6,7 @@ import { listOrdersAdmin } from "@/lib/orders";
 export const metadata = { title: "Orders" };
 
 export default async function OrdersPage() {
-  const initial = await listOrdersAdmin({ page: 1, page_size: 8 });
+  const initial = await listOrdersAdmin({ page: 1, page_size: 10 });
 
   return (
     <div className="flex flex-col gap-5">
