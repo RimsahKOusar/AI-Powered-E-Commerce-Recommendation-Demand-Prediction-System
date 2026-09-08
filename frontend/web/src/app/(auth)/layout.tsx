@@ -1,8 +1,16 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { Boxes } from "lucide-react";
 
-export default function AuthLayout({ children }: { children: ReactNode }) {
+import { getCurrentUser } from "@/lib/dal";
+
+export default async function AuthLayout({ children }: { children: ReactNode }) {
+  const user = await getCurrentUser();
+  if (user) {
+    redirect(user.role === "admin" ? "/admin" : "/account");
+  }
+
   return (
     <div className="grid min-h-full place-items-center bg-background px-4 py-12">
       <div className="w-full max-w-sm">

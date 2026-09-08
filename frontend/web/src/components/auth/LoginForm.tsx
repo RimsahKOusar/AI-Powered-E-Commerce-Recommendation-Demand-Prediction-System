@@ -34,7 +34,7 @@ export function LoginForm() {
       // Full navigation (not router.push) — guarantees the destination's Server
       // Components re-render with the cookies this response just set, instead of
       // possibly serving the pre-login page from the client router cache.
-      window.location.href = data.user.role === "admin" ? "/admin" : "/";
+      window.location.href = data.user.role === "admin" ? "/admin" : "/account";
     } catch {
       setError("Could not reach the server. Is core-api running?");
       setLoading(false);

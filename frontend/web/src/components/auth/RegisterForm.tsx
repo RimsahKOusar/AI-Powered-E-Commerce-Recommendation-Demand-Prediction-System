@@ -34,7 +34,7 @@ export function RegisterForm() {
 
       // Full navigation — see LoginForm for why this isn't router.push().
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-      window.location.href = "/";
+      window.location.href = "/account";
     } catch {
       setError("Could not reach the server. Is core-api running?");
       setLoading(false);
