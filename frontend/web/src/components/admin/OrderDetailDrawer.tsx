@@ -4,10 +4,18 @@ import { useEffect } from "react";
 import { X } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
-import { Badge } from "@/components/ui/Badge";
+import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { formatCurrency } from "@/lib/format";
-import type { Order } from "@/lib/mock/orders";
-import { STATUS_TONE } from "@/lib/mock/orders";
+import type { Order, OrderStatus } from "@/types";
+
+const STATUS_TONE: Record<OrderStatus, BadgeTone> = {
+  pending: "warning",
+  paid: "success",
+  shipped: "info",
+  delivered: "success",
+  cancelled: "danger",
+  refunded: "neutral",
+};
 
 export function OrderDetailDrawer({ order, onClose }: { order: Order | null; onClose: () => void }) {
   useEffect(() => {
@@ -42,10 +50,10 @@ export function OrderDetailDrawer({ order, onClose }: { order: Order | null; onC
 
         <div className="flex flex-col gap-5 p-5">
           <div className="flex items-center gap-3">
-            <Avatar name={order.customer} size={40} />
+            <Avatar name={order.customer_name ?? "?"} size={40} />
             <div className="min-w-0">
-              <div className="truncate font-medium text-foreground">{order.customer}</div>
-              <div className="truncate text-xs text-muted">{order.email}</div>
+              <div className="truncate font-medium text-foreground">{order.customer_name}</div>
+              <div className="truncate text-xs text-muted">{order.customer_email}</div>
             </div>
             <Badge tone={STATUS_TONE[order.status]} className="ml-auto shrink-0 capitalize">
               {order.status}
@@ -55,11 +63,13 @@ export function OrderDetailDrawer({ order, onClose }: { order: Order | null; onC
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-lg bg-surface-muted p-3">
               <div className="text-xs text-muted">Placed</div>
-              <div className="font-medium text-foreground">{order.placedAt}</div>
+              <div className="font-medium text-foreground">
+                {new Date(order.placed_at).toLocaleString()}
+              </div>
             </div>
             <div className="rounded-lg bg-surface-muted p-3">
               <div className="text-xs text-muted">Payment</div>
-              <div className="font-medium text-foreground">{order.paymentMethod}</div>
+              <div className="font-medium uppercase text-foreground">{order.payment_method}</div>
             </div>
           </div>
 
@@ -67,7 +77,7 @@ export function OrderDetailDrawer({ order, onClose }: { order: Order | null; onC
             <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
               Shipping address
             </div>
-            <p className="text-sm text-body">{order.shippingAddress}</p>
+            <p className="text-sm text-body">{order.shipping_address}</p>
           </div>
 
           <div>
@@ -75,16 +85,14 @@ export function OrderDetailDrawer({ order, onClose }: { order: Order | null; onC
               Items
             </div>
             <ul className="flex flex-col gap-2.5">
-              {order.lineItems.map((li) => (
-                <li key={li.sku} className="flex items-center gap-3 text-sm">
+              {order.items.map((li) => (
+                <li key={li.id} className="flex items-center gap-3 text-sm">
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-medium text-foreground">{li.title}</div>
-                    <div className="font-mono text-[0.7rem] text-muted">
-                      {li.sku} · ×{li.qty}
-                    </div>
+                    <div className="truncate font-medium text-foreground">{li.title_snapshot}</div>
+                    <div className="font-mono text-[0.7rem] text-muted">×{li.quantity}</div>
                   </div>
                   <div className="shrink-0 font-semibold text-foreground">
-                    {formatCurrency(li.price * li.qty)}
+                    {formatCurrency(li.line_total, order.currency)}
                   </div>
                 </li>
               ))}
@@ -93,7 +101,9 @@ export function OrderDetailDrawer({ order, onClose }: { order: Order | null; onC
 
           <div className="flex items-center justify-between border-t border-border pt-4">
             <span className="text-sm font-medium text-body">Total</span>
-            <span className="text-lg font-bold text-foreground">{formatCurrency(order.amount)}</span>
+            <span className="text-lg font-bold text-foreground">
+              {formatCurrency(order.grand_total, order.currency)}
+            </span>
           </div>
         </div>
       </aside>

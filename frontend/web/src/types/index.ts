@@ -58,3 +58,42 @@ export type Paginated<T> = {
   data: T[];
   meta: { pagination: { page: number; page_size: number; total: number; total_pages: number } };
 };
+
+export type OrderStatus = "pending" | "paid" | "shipped" | "delivered" | "cancelled" | "refunded";
+
+export type OrderItem = {
+  id: string;
+  product_id: string;
+  title_snapshot: string;
+  quantity: number;
+  unit_price: number;
+  line_total: number;
+};
+
+export type Order = {
+  id: string;
+  user_id: string;
+  customer_name: string | null;
+  customer_email: string | null;
+  status: OrderStatus;
+  subtotal: number;
+  shipping_total: number;
+  grand_total: number;
+  currency: string;
+  payment_method: string;
+  shipping_address: string;
+  placed_at: string;
+  items: OrderItem[];
+};
+
+export type CustomerSegment = "new" | "window_shopper" | "high_intent" | "loyal";
+
+export type Customer = {
+  id: string;
+  full_name: string;
+  email: string;
+  joined_at: string;
+  orders_count: number;
+  total_spent: number;
+  segment: CustomerSegment;
+};
