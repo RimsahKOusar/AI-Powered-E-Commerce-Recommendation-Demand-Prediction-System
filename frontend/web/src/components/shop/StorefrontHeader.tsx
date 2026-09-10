@@ -2,17 +2,18 @@ import Link from "next/link";
 import { Boxes, ShoppingCart } from "lucide-react";
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import { getCart } from "@/lib/cart";
-import { listCategories } from "@/lib/catalog";
+import { auth } from "@/lib/auth";
 import { getCurrentUser } from "@/lib/dal";
+import { cartApi, categoryApi } from "@/config/api";
 
 import { SearchBox } from "./SearchBox";
 import { UserMenu } from "./UserMenu";
 
 export async function StorefrontHeader() {
+  const session = await auth();
   const [categories, cart, user] = await Promise.all([
-    listCategories(),
-    getCart(),
+    categoryApi.getAllCategories(session?.accessToken),
+    cartApi.getCart(session?.accessToken),
     getCurrentUser(),
   ]);
   const topLevel = categories.filter((c) => !c.parent_id && c.is_active).slice(0, 6);

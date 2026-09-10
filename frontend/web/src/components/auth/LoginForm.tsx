@@ -2,10 +2,12 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { getSession, signIn } from "next-auth/react";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { userApi } from "@/config/api/users.api";
 
 export function LoginForm() {
   const [email, setEmail] = useState("");
@@ -19,22 +21,20 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await res.json();
+      const result = await signIn("credentials", { email, password, redirect: false });
 
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Login failed. Please try again.");
+      if (result?.error) {
+        setError("Invalid email or password.");
         return;
       }
 
+      const session = await getSession();
+      const me = session?.accessToken ? await userApi.getMe(session.accessToken) : null;
+
       // Full navigation (not router.push) — guarantees the destination's Server
-      // Components re-render with the cookies this response just set, instead of
-      // possibly serving the pre-login page from the client router cache.
-      window.location.href = data.user.role === "admin" ? "/admin" : "/";
+      // Components re-render with the session NextAuth just established, instead
+      // of possibly serving the pre-login page from the client router cache.
+      window.location.href = me?.role === "admin" ? "/admin" : "/";
     } catch {
       setError("Could not reach the server. Is core-api running?");
       setLoading(false);

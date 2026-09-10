@@ -2,24 +2,26 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 
+import { productApi } from "@/config/api/products.api";
+import { ApiError } from "@/config/api/client";
+
 export function ProductRowActions({ id, title }: { id: string; title: string }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [deleting, setDeleting] = useState(false);
 
   async function onDelete() {
-    if (!confirm(`Delete "${title}"? This can't be undone.`)) return;
+    if (!confirm(`Delete "${title}"? This can't be undone.`) || !session?.accessToken) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        alert(data?.error?.message ?? "Failed to delete product.");
-        return;
-      }
+      await productApi.deleteProduct(id, session.accessToken);
       router.refresh();
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Failed to delete product.");
     } finally {
       setDeleting(false);
     }

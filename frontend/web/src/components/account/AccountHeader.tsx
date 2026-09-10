@@ -2,11 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { Boxes, ChevronDown, LogOut, User as UserIcon } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
-import type { User } from "@/types";
+import type { User } from "@/types/auth";
 
 export function AccountHeader({ user }: { user: User }) {
   const [open, setOpen] = useState(false);
@@ -15,7 +16,7 @@ export function AccountHeader({ user }: { user: User }) {
   async function handleLogout() {
     setLoggingOut(true);
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await signOut({ redirect: false });
     } finally {
       // Full navigation — client Router Cache would otherwise serve the
       // pre-logout page (see the LoginForm fix for the same issue).

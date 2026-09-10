@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Check, Minus, Plus, ShoppingCart } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
+import { cartApi } from "@/config/api/cart.api";
 
 export function AddToCartButton({
   productId,
@@ -16,25 +18,19 @@ export function AddToCartButton({
   compact?: boolean;
 }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [qty, setQty] = useState(1);
   const [loading, setLoading] = useState(false);
   const [added, setAdded] = useState(false);
 
   async function onAdd() {
+    if (!session?.accessToken) {
+      router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
     setLoading(true);
     try {
-      const res = await fetch("/api/cart/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ product_id: productId, quantity: qty }),
-      });
-
-      if (res.status === 401) {
-        router.push(`/login?next=${encodeURIComponent(window.location.pathname)}`);
-        return;
-      }
-      if (!res.ok) return;
-
+      await cartApi.addItem(productId, qty, session.accessToken);
       setAdded(true);
       router.refresh();
       setTimeout(() => setAdded(false), 1500);

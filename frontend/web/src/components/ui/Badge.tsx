@@ -1,6 +1,6 @@
-import { type HTMLAttributes } from "react";
+﻿import { type HTMLAttributes } from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 const TONES = {
   primary: "bg-primary-soft text-primary-hover",

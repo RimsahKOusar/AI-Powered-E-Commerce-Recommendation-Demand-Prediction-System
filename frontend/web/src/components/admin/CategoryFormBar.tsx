@@ -2,38 +2,33 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { categoryApi } from "@/config/api/categories.api";
+import { ApiError } from "@/config/api/client";
 
 export function CategoryFormBar() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !session?.accessToken) return;
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch("/api/admin/categories", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim() }),
-      });
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Failed to create category.");
-        return;
-      }
-
+      await categoryApi.createCategory({ name: name.trim() }, session.accessToken);
       setName("");
       router.refresh();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Failed to create category.");
     } finally {
       setLoading(false);
     }

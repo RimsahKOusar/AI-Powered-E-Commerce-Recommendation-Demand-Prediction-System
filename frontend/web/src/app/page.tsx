@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { ProductGrid } from "@/components/shop/ProductGrid";
 import { StorefrontHeader } from "@/components/shop/StorefrontHeader";
 import { getCurrentUser } from "@/lib/dal";
-import { listProducts } from "@/lib/catalog";
+import { productApi } from "@/config/api";
 
 type SearchParams = Record<string, string | undefined>;
 
@@ -18,7 +18,7 @@ export default async function Home({
   }
 
   const sp = await searchParams;
-  const { data: products } = await listProducts({
+  const { data: products } = await productApi.getAllProducts({
     q: sp.q,
     category_id: sp.category_id,
     is_active: true,

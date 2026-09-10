@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { authApi } from "@/config/api/auth.api";
+import { ApiError } from "@/config/api/client";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -23,21 +25,12 @@ export function ForgotPasswordForm() {
     setInfo(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Could not send the code.");
-        return;
-      }
-      setDebugOtp(data?.debug_reset_otp ?? null);
+      const data = await authApi.forgotPassword(email);
+      setDebugOtp(data.debug_reset_otp ?? null);
       setInfo("Your verification code is ready. It expires in 1 hour.");
       setStep("reset");
-    } catch {
-      setError("Could not reach the server.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not reach the server.");
     } finally {
       setLoading(false);
     }
@@ -49,21 +42,12 @@ export function ForgotPasswordForm() {
     setInfo(null);
     setLoading(true);
     try {
-      const res = await fetch("/api/auth/reset-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token: otp, password }),
-      });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Could not reset the password.");
-        return;
-      }
+      await authApi.resetPassword({ token: otp, password });
       setInfo("Password changed. You can now sign in.");
       setOtp("");
       setPassword("");
-    } catch {
-      setError("Could not reach the server.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not reach the server.");
     } finally {
       setLoading(false);
     }

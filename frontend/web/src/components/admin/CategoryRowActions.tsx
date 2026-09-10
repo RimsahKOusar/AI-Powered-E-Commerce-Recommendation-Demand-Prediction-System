@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Pencil, Trash2 } from "lucide-react";
+
+import { categoryApi } from "@/config/api/categories.api";
+import { ApiError } from "@/config/api/client";
 
 export function CategoryRowActions({
   id,
@@ -14,24 +18,18 @@ export function CategoryRowActions({
   productCount: number;
 }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [busy, setBusy] = useState(false);
 
   async function onRename() {
     const next = prompt("Rename category", name);
-    if (!next || next.trim() === "" || next === name) return;
+    if (!next || next.trim() === "" || next === name || !session?.accessToken) return;
     setBusy(true);
     try {
-      const res = await fetch(`/api/admin/categories/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: next.trim() }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        alert(data?.error?.message ?? "Failed to rename category.");
-        return;
-      }
+      await categoryApi.updateCategory(id, { name: next.trim() }, session.accessToken);
       router.refresh();
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Failed to rename category.");
     } finally {
       setBusy(false);
     }
@@ -42,16 +40,13 @@ export function CategoryRowActions({
       alert(`"${name}" still has ${productCount} product(s) — move or delete them first.`);
       return;
     }
-    if (!confirm(`Delete "${name}"?`)) return;
+    if (!confirm(`Delete "${name}"?`) || !session?.accessToken) return;
     setBusy(true);
     try {
-      const res = await fetch(`/api/admin/categories/${id}`, { method: "DELETE" });
-      if (!res.ok) {
-        const data = await res.json().catch(() => null);
-        alert(data?.error?.message ?? "Failed to delete category.");
-        return;
-      }
+      await categoryApi.deleteCategory(id, session.accessToken);
       router.refresh();
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Failed to delete category.");
     } finally {
       setBusy(false);
     }

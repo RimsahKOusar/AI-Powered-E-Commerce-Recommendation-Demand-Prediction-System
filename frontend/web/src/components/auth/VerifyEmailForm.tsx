@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useSession } from "next-auth/react";
 import { MailCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { authApi } from "@/config/api/auth.api";
+import { ApiError } from "@/config/api/client";
 
 const RESEND_COOLDOWN_SECONDS = 30;
 
 export function VerifyEmailForm({ email }: { email: string }) {
+  const { data: session } = useSession();
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
@@ -19,34 +23,30 @@ export function VerifyEmailForm({ email }: { email: string }) {
   const sentOnMount = useRef(false);
 
   async function sendOtp() {
+    if (!session?.accessToken) return;
     setSending(true);
     setError(null);
     try {
-      const res = await fetch("/api/auth/send-otp", { method: "POST" });
-      const data = await res.json().catch(() => null);
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Failed to send the code.");
-        return;
-      }
+      const data = await authApi.sendOtp(session.accessToken);
       setInfo(
-        data?.debug_otp
+        data.debug_otp
           ? `Code sent — dev mode: ${data.debug_otp}` // core-api only includes this when DEBUG=true
           : `A 6-digit code was sent to ${email}.`,
       );
       setCooldown(RESEND_COOLDOWN_SECONDS);
-    } catch {
-      setError("Could not reach the server.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not reach the server.");
     } finally {
       setSending(false);
     }
   }
 
   useEffect(() => {
-    if (sentOnMount.current) return;
+    if (sentOnMount.current || !session?.accessToken) return;
     sentOnMount.current = true;
     void sendOtp();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [session?.accessToken]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -56,26 +56,16 @@ export function VerifyEmailForm({ email }: { email: string }) {
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!session?.accessToken) return;
     setError(null);
     setVerifying(true);
 
     try {
-      const res = await fetch("/api/auth/verify-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
-      });
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Verification failed.");
-        return;
-      }
-
+      const user = await authApi.verifyEmail(code, session.accessToken);
       // Full navigation — see LoginForm for why this isn't router.push().
-      window.location.href = data.role === "admin" ? "/admin" : "/";
-    } catch {
-      setError("Could not reach the server.");
+      window.location.href = user.role === "admin" ? "/admin" : "/";
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not reach the server.");
     } finally {
       setVerifying(false);
     }

@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { House, Package, ShoppingBag, UserRound } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 const NAV_ITEMS = [
   { href: "/account", label: "Account home", icon: House },

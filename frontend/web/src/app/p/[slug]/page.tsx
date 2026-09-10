@@ -4,14 +4,14 @@ import { Package, Star } from "lucide-react";
 import { AddToCartButton } from "@/components/shop/AddToCartButton";
 import { StorefrontHeader } from "@/components/shop/StorefrontHeader";
 import { Badge } from "@/components/ui/Badge";
-import { ApiError } from "@/lib/api";
-import { formatCurrency } from "@/lib/format";
-import { getProduct } from "@/lib/catalog";
+import { ApiError } from "@/config/api/client";
+import { productApi } from "@/config/api";
+import { formatCurrency } from "@/utils/format";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   try {
-    const product = await getProduct(slug);
+    const product = await productApi.getProductById(slug);
     return { title: product.title };
   } catch {
     return { title: "Product" };
@@ -23,7 +23,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   let product;
   try {
-    product = await getProduct(slug);
+    product = await productApi.getProductById(slug);
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) notFound();
     throw err;

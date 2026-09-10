@@ -1,27 +1,21 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Package } from "lucide-react";
 
-import { Badge, type BadgeTone } from "@/components/ui/Badge";
+import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/format";
-import { listMyOrders } from "@/lib/orders";
+import { formatCurrency } from "@/utils/format";
+import { getAccessToken } from "@/lib/auth";
 import { requireUser } from "@/lib/dal";
-import type { OrderStatus } from "@/types";
+import { orderApi } from "@/config/api";
+import { ORDER_STATUS_TONE } from "@/utils/constants/order-status";
 
 export const metadata = { title: "My orders" };
 
-const STATUS_TONE: Record<OrderStatus, BadgeTone> = {
-  pending: "warning",
-  paid: "success",
-  shipped: "info",
-  delivered: "success",
-  cancelled: "danger",
-  refunded: "neutral",
-};
-
 export default async function MyOrdersPage() {
   await requireUser();
-  const { data: orders } = await listMyOrders({ page_size: 50 });
+  // Non-null: requireUser() above redirects to /login when there's no session.
+  const token = (await getAccessToken())!;
+  const { data: orders } = await orderApi.getMyOrders({ page_size: 50 }, token);
 
   return (
     <div className="flex flex-col gap-5">
@@ -51,7 +45,7 @@ export default async function MyOrdersPage() {
                     {new Date(o.placed_at).toLocaleDateString()}
                   </div>
                 </div>
-                <Badge tone={STATUS_TONE[o.status]} className="capitalize">
+                <Badge tone={ORDER_STATUS_TONE[o.status]} className="capitalize">
                   {o.status}
                 </Badge>
               </div>
@@ -60,7 +54,7 @@ export default async function MyOrdersPage() {
                 {o.items.map((item) => (
                   <li key={item.id} className="flex justify-between text-sm">
                     <span className="text-body">
-                      {item.title_snapshot} × {item.quantity}
+                      {item.title_snapshot} Ã— {item.quantity}
                     </span>
                     <span className="font-medium text-foreground">
                       {formatCurrency(item.line_total, o.currency)}

@@ -1,22 +1,24 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
-import { apiFetch, ApiError } from "@/lib/api";
-import { ACCESS_COOKIE } from "@/lib/session";
-import type { User } from "@/types";
+import { auth } from "@/lib/auth";
+import { userApi } from "@/config/api/users.api";
+import { ApiError } from "@/config/api/client";
+import type { User } from "@/types/auth";
 
 /**
  * Verifies the session against core-api (`GET /auth/me`) inside the Server
- * Component tree — this, not `middleware.ts`, is the real auth boundary.
- * `cache()` de-dupes repeat calls within one request/render pass.
+ * Component tree — this, not `proxy.ts`, is the real auth boundary. Always
+ * fetched fresh (not read from the NextAuth JWT) so profile edits and
+ * email-verification state are never stale. `cache()` de-dupes repeat calls
+ * within one request/render pass.
  */
 export const getCurrentUser = cache(async (): Promise<User | null> => {
-  const jar = await cookies();
-  if (!jar.get(ACCESS_COOKIE)?.value) return null;
+  const session = await auth();
+  if (!session?.accessToken) return null;
 
   try {
-    return await apiFetch<User>("/auth/me");
+    return await userApi.getMe(session.accessToken);
   } catch (err) {
     if (err instanceof ApiError && err.status === 401) return null;
     throw err;

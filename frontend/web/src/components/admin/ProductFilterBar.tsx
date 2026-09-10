@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import type { Category } from "@/types";
+import type { Category } from "@/types/categories";
 
 export function ProductFilterBar({ categories }: { categories: Category[] }) {
   const router = useRouter();

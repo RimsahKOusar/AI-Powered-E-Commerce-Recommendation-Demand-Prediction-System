@@ -1,13 +1,14 @@
 import { CartItemsList } from "@/components/shop/CartItemsList";
 import { StorefrontHeader } from "@/components/shop/StorefrontHeader";
-import { getCart } from "@/lib/cart";
+import { getAccessToken } from "@/lib/auth";
 import { requireUser } from "@/lib/dal";
+import { cartApi } from "@/config/api";
 
 export const metadata = { title: "Your cart" };
 
 export default async function CartPage() {
   await requireUser();
-  const cart = await getCart();
+  const cart = await cartApi.getCart(await getAccessToken());
 
   return (
     <div className="min-h-full">

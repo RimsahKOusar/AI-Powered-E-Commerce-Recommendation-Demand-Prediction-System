@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/utils/cn";
 
 const PALETTE = [
   "bg-primary-soft text-primary-hover",

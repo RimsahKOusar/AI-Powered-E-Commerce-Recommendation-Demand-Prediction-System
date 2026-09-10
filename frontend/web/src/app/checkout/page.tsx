@@ -2,14 +2,15 @@ import { redirect } from "next/navigation";
 
 import { CheckoutForm } from "@/components/shop/CheckoutForm";
 import { StorefrontHeader } from "@/components/shop/StorefrontHeader";
-import { getCart } from "@/lib/cart";
+import { getAccessToken } from "@/lib/auth";
 import { requireUser } from "@/lib/dal";
+import { cartApi } from "@/config/api";
 
 export const metadata = { title: "Checkout" };
 
 export default async function CheckoutPage() {
   await requireUser();
-  const cart = await getCart();
+  const cart = await cartApi.getCart(await getAccessToken());
 
   if (cart.items.length === 0) {
     redirect("/cart");

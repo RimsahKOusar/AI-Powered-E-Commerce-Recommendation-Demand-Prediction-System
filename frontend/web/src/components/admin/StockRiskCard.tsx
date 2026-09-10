@@ -1,8 +1,8 @@
-import { AlertTriangle } from "lucide-react";
+﻿import { AlertTriangle } from "lucide-react";
 
 import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 const RISK_TONE: Record<"HIGH" | "MEDIUM" | "LOW", BadgeTone> = {
   HIGH: "danger",
@@ -28,7 +28,7 @@ export function StockRiskCard({
       <CardHeader>
         <div>
           <CardTitle>Forecast &amp; stock risk</CardTitle>
-          <p className="mt-0.5 text-xs text-muted">30-day demand coverage · M2</p>
+          <p className="mt-0.5 text-xs text-muted">30-day demand coverage Â· M2</p>
         </div>
         {highCount > 0 && (
           <Badge tone="danger" className="gap-1">

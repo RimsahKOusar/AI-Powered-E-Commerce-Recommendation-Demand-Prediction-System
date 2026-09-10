@@ -2,41 +2,38 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Truck } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/format";
-import type { Cart } from "@/types";
+import { orderApi } from "@/config/api/orders.api";
+import { ApiError } from "@/config/api/client";
+import { formatCurrency } from "@/utils/format";
+import type { Cart } from "@/types/cart";
 
 export function CheckoutForm({ cart }: { cart: Cart }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [address, setAddress] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!session?.accessToken) return;
     setError(null);
     setLoading(true);
 
     try {
-      const res = await fetch("/api/orders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shipping_address: address, payment_method: "cod" }),
-      });
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Could not place your order.");
-        return;
-      }
-
-      router.push(`/checkout/${data.id}/confirmation`);
+      const order = await orderApi.placeOrder(
+        { shipping_address: address, payment_method: "cod" },
+        session.accessToken,
+      );
+      router.push(`/checkout/${order.id}/confirmation`);
       router.refresh();
-    } catch {
-      setError("Could not reach the server.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not reach the server.");
     } finally {
       setLoading(false);
     }

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import {
@@ -12,8 +12,8 @@ import {
 } from "recharts";
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatCompactNumber, formatCurrency } from "@/lib/format";
-import { cn } from "@/lib/utils";
+import { formatCompactNumber, formatCurrency } from "@/utils/format";
+import { cn } from "@/utils/cn";
 
 const PERIODS = ["7D", "30D", "90D"] as const;
 

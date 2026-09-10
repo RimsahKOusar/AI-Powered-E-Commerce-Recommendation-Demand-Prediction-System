@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { signOut } from "next-auth/react";
 import { LogOut, Package, User as UserIcon } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
-import type { User } from "@/types";
+import type { User } from "@/types/auth";
 
 export function UserMenu({ user }: { user: User | null }) {
   const [open, setOpen] = useState(false);
@@ -14,7 +15,7 @@ export function UserMenu({ user }: { user: User | null }) {
   async function handleLogout() {
     setLoggingOut(true);
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await signOut({ redirect: false });
     } finally {
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = "/";

@@ -1,10 +1,10 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { Package, Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/format";
-import type { Product } from "@/types";
+import { formatCurrency } from "@/utils/format";
+import type { Product } from "@/types/products";
 
 import { AddToCartButton } from "./AddToCartButton";
 

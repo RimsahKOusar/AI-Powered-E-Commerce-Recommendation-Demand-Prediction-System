@@ -2,10 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
+import { authApi } from "@/config/api/auth.api";
+import { ApiError } from "@/config/api/client";
 
 export function RegisterForm() {
   const [fullName, setFullName] = useState("");
@@ -20,23 +23,17 @@ export function RegisterForm() {
     setLoading(true);
 
     try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, full_name: fullName }),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Registration failed. Please try again.");
-        return;
-      }
+      // Register directly against FastAPI first — surfaces the backend's real
+      // validation message (weak password, duplicate email, …). Then establish
+      // the NextAuth session by signing in with the same credentials.
+      await authApi.register({ email, password, full_name: fullName });
+      await signIn("credentials", { email, password, redirect: false });
 
       // Full navigation — see LoginForm for why this isn't router.push().
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination
       window.location.href = "/verify-email";
-    } catch {
-      setError("Could not reach the server. Is core-api running?");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not reach the server. Is core-api running?");
       setLoading(false);
     }
   }

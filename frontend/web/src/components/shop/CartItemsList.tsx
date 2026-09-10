@@ -3,30 +3,31 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Minus, Package, Plus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/format";
-import type { Cart } from "@/types";
+import { cartApi } from "@/config/api/cart.api";
+import { formatCurrency } from "@/utils/format";
+import type { Cart } from "@/types/cart";
 
 export function CartItemsList({ initial }: { initial: Cart }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [cart, setCart] = useState(initial);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   async function updateQty(productId: string, quantity: number) {
+    if (!session?.accessToken) return;
     setBusyId(productId);
     try {
-      const res = await fetch(`/api/cart/items/${productId}`, {
-        method: quantity === 0 ? "DELETE" : "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: quantity === 0 ? undefined : JSON.stringify({ quantity }),
-      });
-      if (res.ok) {
-        setCart(await res.json());
-        router.refresh(); // keeps the navbar cart badge in sync
-      }
+      const next =
+        quantity === 0
+          ? await cartApi.removeItem(productId, session.accessToken)
+          : await cartApi.updateItem(productId, quantity, session.accessToken);
+      setCart(next);
+      router.refresh(); // keeps the navbar cart badge in sync
     } finally {
       setBusyId(null);
     }

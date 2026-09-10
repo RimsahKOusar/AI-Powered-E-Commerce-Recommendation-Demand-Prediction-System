@@ -1,5 +1,5 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatCompactNumber } from "@/lib/format";
+﻿import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
+import { formatCompactNumber } from "@/utils/format";
 
 export function ConversionFunnel({
   data,

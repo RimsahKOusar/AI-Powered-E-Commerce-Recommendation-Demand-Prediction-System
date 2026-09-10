@@ -4,9 +4,10 @@ import { CheckCircle2 } from "lucide-react";
 import { StorefrontHeader } from "@/components/shop/StorefrontHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/format";
-import { getMyOrder } from "@/lib/orders";
+import { formatCurrency } from "@/utils/format";
+import { getAccessToken } from "@/lib/auth";
 import { requireUser } from "@/lib/dal";
+import { orderApi } from "@/config/api";
 
 export const metadata = { title: "Order confirmed" };
 
@@ -17,7 +18,9 @@ export default async function OrderConfirmationPage({
 }) {
   await requireUser();
   const { orderId } = await params;
-  const order = await getMyOrder(orderId);
+  // Non-null: requireUser() above redirects to /login when there's no session.
+  const token = (await getAccessToken())!;
+  const order = await orderApi.getMyOrder(orderId, token);
 
   return (
     <div className="min-h-full">

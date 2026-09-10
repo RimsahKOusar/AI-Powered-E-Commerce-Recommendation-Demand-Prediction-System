@@ -1,13 +1,18 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Switch } from "@/components/ui/Switch";
-import type { Category, Product } from "@/types";
+import { productApi } from "@/config/api/products.api";
+import { mediaApi } from "@/config/api/media.api";
+import { ApiError } from "@/config/api/client";
+import type { Category } from "@/types/categories";
+import type { Product } from "@/types/products";
 
 export function ProductForm({
   categories,
@@ -17,6 +22,7 @@ export function ProductForm({
   product?: Product;
 }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const isEdit = Boolean(product);
 
   const [title, setTitle] = useState(product?.title ?? "");
@@ -30,12 +36,33 @@ export function ProductForm({
   const [stock, setStock] = useState(product ? String(product.stock) : "0");
   const [description, setDescription] = useState(product?.description ?? "");
   const [imageUrl, setImageUrl] = useState(product?.image_url ?? "");
+  const [imageKey, setImageKey] = useState(product?.image_url ?? "");
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const [isActive, setIsActive] = useState(product?.is_active ?? true);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  async function onImageChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file || !session?.accessToken) return;
+    setError(null);
+    setUploading(true);
+    try {
+      const media = await mediaApi.upload(file, "products", session.accessToken);
+      setImageKey(media.key);
+      setImageUrl(media.url);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not upload the image.");
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!session?.accessToken) return;
     setError(null);
     setLoading(true);
 
@@ -48,30 +75,21 @@ export function ProductForm({
       discount_price: discountPrice ? Number(discountPrice) : undefined,
       stock: Number(stock),
       description,
-      image_url: imageUrl || undefined,
+      image_url: imageKey || imageUrl || undefined,
       is_active: isActive,
     };
 
     try {
-      const res = await fetch(
-        isEdit ? `/api/admin/products/${product!.id}` : "/api/admin/products",
-        {
-          method: isEdit ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        },
-      );
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Failed to save product.");
-        return;
+      if (isEdit) {
+        await productApi.updateProduct(product!.id, body, session.accessToken);
+      } else {
+        await productApi.createProduct(body, session.accessToken);
       }
 
       router.push("/admin/products");
       router.refresh();
-    } catch {
-      setError("Could not reach the server.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not reach the server.");
     } finally {
       setLoading(false);
     }
@@ -131,11 +149,18 @@ export function ProductForm({
           </label>
 
           <label className="flex flex-col gap-1.5 text-sm">
-            <span className="font-medium text-body">Image URL</span>
+            <span className="font-medium text-body">Product image</span>
+            <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={onImageChange} />
+            <Button type="button" variant="outline" onClick={() => imageInputRef.current?.click()} loading={uploading}>
+              {uploading ? "Uploading image" : "Choose image"}
+            </Button>
             <Input
               value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="https://…"
+              onChange={(e) => {
+                setImageUrl(e.target.value);
+                setImageKey(e.target.value);
+              }}
+              placeholder="Or paste an image URL"
             />
           </label>
         </CardContent>

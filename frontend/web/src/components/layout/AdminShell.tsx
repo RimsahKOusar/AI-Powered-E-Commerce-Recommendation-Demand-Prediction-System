@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { useState, type ReactNode } from "react";
 
-import { cn } from "@/lib/utils";
-import type { User } from "@/types";
+import { cn } from "@/utils/cn";
+import type { User } from "@/types/auth";
 
 import { AdminNavbar } from "./AdminNavbar";
 import { AdminSidebar } from "./AdminSidebar";

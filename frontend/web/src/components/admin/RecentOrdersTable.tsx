@@ -1,7 +1,7 @@
-import { Badge, type BadgeTone } from "@/components/ui/Badge";
+﻿import { Badge, type BadgeTone } from "@/components/ui/Badge";
 import { Avatar } from "@/components/ui/Avatar";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatCurrency } from "@/lib/format";
+import { formatCurrency } from "@/utils/format";
 
 const STATUS_TONE: Record<string, BadgeTone> = {
   paid: "success",

@@ -1,21 +1,13 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { X } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
-import { Badge, type BadgeTone } from "@/components/ui/Badge";
-import { formatCurrency } from "@/lib/format";
-import type { Order, OrderStatus } from "@/types";
-
-const STATUS_TONE: Record<OrderStatus, BadgeTone> = {
-  pending: "warning",
-  paid: "success",
-  shipped: "info",
-  delivered: "success",
-  cancelled: "danger",
-  refunded: "neutral",
-};
+import { Badge } from "@/components/ui/Badge";
+import { formatCurrency } from "@/utils/format";
+import { ORDER_STATUS_TONE } from "@/utils/constants/order-status";
+import type { Order } from "@/types/orders";
 
 export function OrderDetailDrawer({ order, onClose }: { order: Order | null; onClose: () => void }) {
   useEffect(() => {
@@ -55,7 +47,7 @@ export function OrderDetailDrawer({ order, onClose }: { order: Order | null; onC
               <div className="truncate font-medium text-foreground">{order.customer_name}</div>
               <div className="truncate text-xs text-muted">{order.customer_email}</div>
             </div>
-            <Badge tone={STATUS_TONE[order.status]} className="ml-auto shrink-0 capitalize">
+            <Badge tone={ORDER_STATUS_TONE[order.status]} className="ml-auto shrink-0 capitalize">
               {order.status}
             </Badge>
           </div>
@@ -89,7 +81,7 @@ export function OrderDetailDrawer({ order, onClose }: { order: Order | null; onC
                 <li key={li.id} className="flex items-center gap-3 text-sm">
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-medium text-foreground">{li.title_snapshot}</div>
-                    <div className="font-mono text-[0.7rem] text-muted">×{li.quantity}</div>
+                    <div className="font-mono text-[0.7rem] text-muted">Ã—{li.quantity}</div>
                   </div>
                   <div className="shrink-0 font-semibold text-foreground">
                     {formatCurrency(li.line_total, order.currency)}

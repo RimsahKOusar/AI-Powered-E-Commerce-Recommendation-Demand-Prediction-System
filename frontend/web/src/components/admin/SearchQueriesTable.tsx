@@ -1,6 +1,6 @@
-import { Badge } from "@/components/ui/Badge";
+﻿import { Badge } from "@/components/ui/Badge";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatCompactNumber } from "@/lib/format";
+import { formatCompactNumber } from "@/utils/format";
 
 export function SearchQueriesTable({
   queries,
@@ -14,7 +14,7 @@ export function SearchQueriesTable({
       <CardHeader>
         <div>
           <CardTitle>Top search queries</CardTitle>
-          <p className="mt-0.5 text-xs text-muted">Last 7 days · search_events</p>
+          <p className="mt-0.5 text-xs text-muted">Last 7 days Â· search_events</p>
         </div>
       </CardHeader>
 
@@ -50,7 +50,7 @@ export function SearchQueriesTable({
                   </div>
                 </td>
                 <td className="px-3 py-2.5 font-semibold text-foreground">
-                  {q.zeroResult ? "—" : `${q.ctr}%`}
+                  {q.zeroResult ? "â€”" : `${q.ctr}%`}
                 </td>
               </tr>
             ))}

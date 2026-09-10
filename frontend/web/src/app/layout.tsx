@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Public_Sans, IBM_Plex_Mono } from "next/font/google";
-import Script from "next/script";
+import { SessionProvider } from "next-auth/react";
+
+import { ThemeInit } from "@/components/layout/ThemeInit";
 import "./globals.css";
 
 const publicSans = Public_Sans({
@@ -26,18 +28,6 @@ export const metadata: Metadata = {
     "AI-powered e-commerce platform: personalized recommendations and demand forecasting.",
 };
 
-// Set the theme before first paint so an explicit choice never flashes.
-const themeScript = `
-(function () {
-  try {
-    var t = localStorage.getItem("theme");
-    if (t === "dark" || t === "light") {
-      document.documentElement.setAttribute("data-theme", t);
-    }
-  } catch (e) {}
-})();
-`;
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -47,12 +37,10 @@ export default function RootLayout({
       className={`${publicSans.variable} ${plexMono.variable} h-full`}
       suppressHydrationWarning
     >
-      <head>
-        <Script id="theme-init" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
-      </head>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <ThemeInit />
+        <SessionProvider>{children}</SessionProvider>
+      </body>
     </html>
   );
 }

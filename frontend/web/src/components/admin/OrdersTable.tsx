@@ -1,26 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 import { ChevronLeft, ChevronRight, Eye, Loader2, Search } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { Input } from "@/components/ui/Input";
 import { Table, Tbody, Td, Th, Thead, Tr } from "@/components/ui/Table";
-import { formatCurrency } from "@/lib/format";
-import { cn } from "@/lib/utils";
-import type { Order, OrderStatus, Paginated } from "@/types";
+import { orderApi } from "@/config/api/orders.api";
+import { formatCurrency } from "@/utils/format";
+import { cn } from "@/utils/cn";
+import { ORDER_STATUS_TONE } from "@/utils/constants/order-status";
+import type { Order, OrderStatus } from "@/types/orders";
+import type { Paginated } from "@/types/common";
 
 import { OrderDetailDrawer } from "./OrderDetailDrawer";
-
-const STATUS_TONE: Record<OrderStatus, "success" | "warning" | "info" | "danger" | "neutral"> = {
-  pending: "warning",
-  paid: "success",
-  shipped: "info",
-  delivered: "success",
-  cancelled: "danger",
-  refunded: "neutral",
-};
 
 const STATUS_OPTIONS: { label: string; value: OrderStatus | "" }[] = [
   { label: "All statuses", value: "" },
@@ -33,6 +28,7 @@ const STATUS_OPTIONS: { label: string; value: OrderStatus | "" }[] = [
 ];
 
 export function OrdersTable({ initial }: { initial: Paginated<Order> }) {
+  const { data: session } = useSession();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<OrderStatus | "">("");
   const [orders, setOrders] = useState(initial.data);
@@ -43,23 +39,20 @@ export function OrdersTable({ initial }: { initial: Paginated<Order> }) {
 
   const fetchPage = useCallback(
     async (page: number, mode: "replace" | "append", filters: { q: string; status: OrderStatus | "" }) => {
+      if (!session?.accessToken) return;
       setLoading(true);
       try {
-        const params = new URLSearchParams({ page: String(page), page_size: "10" });
-        if (filters.q) params.set("q", filters.q);
-        if (filters.status) params.set("status", filters.status);
-
-        const res = await fetch(`/api/admin/orders?${params.toString()}`);
-        const data: Paginated<Order> = await res.json();
-        if (!res.ok) return;
-
+        const data = await orderApi.getAllOrdersAdmin(
+          { page, page_size: 10, q: filters.q || undefined, status: filters.status || undefined },
+          session.accessToken,
+        );
         setOrders((prev) => (mode === "append" ? [...prev, ...data.data] : data.data));
         setPagination(data.meta.pagination);
       } finally {
         setLoading(false);
       }
     },
-    [],
+    [session?.accessToken],
   );
 
   // Filter changes go straight to a fetch with the new values — not an effect
@@ -155,7 +148,7 @@ export function OrdersTable({ initial }: { initial: Paginated<Order> }) {
                   </Td>
                   <Td className="uppercase">{o.payment_method}</Td>
                   <Td>
-                    <Badge tone={STATUS_TONE[o.status]} className="capitalize">
+                    <Badge tone={ORDER_STATUS_TONE[o.status]} className="capitalize">
                       {o.status}
                     </Badge>
                   </Td>

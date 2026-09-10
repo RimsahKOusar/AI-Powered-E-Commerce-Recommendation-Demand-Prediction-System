@@ -2,19 +2,26 @@
 
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
-import type { User } from "@/types";
+import { mediaApi } from "@/config/api/media.api";
+import { userApi } from "@/config/api/users.api";
+import { ApiError } from "@/config/api/client";
+import type { User } from "@/types/auth";
 
 export function ProfileForm({ user }: { user: User }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [fullName, setFullName] = useState(user.full_name);
   const [phone, setPhone] = useState(user.phone ?? "");
   const [address, setAddress] = useState(user.address ?? "");
   const [avatarUrl, setAvatarUrl] = useState(user.avatar_url ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(user.cover_image_url ?? "");
+  const [avatarKey, setAvatarKey] = useState(user.avatar_url ?? "");
+  const [coverImageKey, setCoverImageKey] = useState(user.cover_image_url ?? "");
   const [showAvatarLink, setShowAvatarLink] = useState(false);
   const [showCoverLink, setShowCoverLink] = useState(false);
   const [imageMenu, setImageMenu] = useState<"avatar" | "cover" | null>(null);
@@ -23,57 +30,67 @@ export function ProfileForm({ user }: { user: User }) {
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    if (!session?.accessToken) return;
     setError(null);
     setSaved(false);
     setLoading(true);
 
     try {
-      const res = await fetch("/api/users/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+      await userApi.updateMe(
+        {
           full_name: fullName,
           phone: phone || null,
           address: address || null,
-          avatar_url: avatarUrl || null,
-          cover_image_url: coverImageUrl || null,
-        }),
-      });
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        setError(data?.error?.message ?? "Failed to update profile.");
-        return;
-      }
+          avatar_url: avatarKey || avatarUrl || null,
+          cover_image_url: coverImageKey || coverImageUrl || null,
+        },
+        session.accessToken,
+      );
 
       setSaved(true);
       router.refresh();
-    } catch {
-      setError("Could not reach the server.");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not reach the server.");
     } finally {
       setLoading(false);
     }
   }
 
-  function readImage(file: File, setImage: (value: string) => void) {
+  async function uploadImage(file: File, kind: "avatar" | "cover") {
     if (!file.type.startsWith("image/")) {
       setError("Please choose an image file.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setImage(String(reader.result));
-    reader.readAsDataURL(file);
+    if (!session?.accessToken) return;
+    setError(null);
+    setUploading(kind);
+    try {
+      const media = await mediaApi.upload(file, "profiles", session.accessToken);
+      if (kind === "avatar") {
+        setAvatarKey(media.key);
+        setAvatarUrl(media.url);
+      } else {
+        setCoverImageKey(media.key);
+        setCoverImageUrl(media.url);
+      }
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Could not upload the image.");
+    } finally {
+      setUploading(null);
+    }
   }
 
   function handleImageChange(
     event: ChangeEvent<HTMLInputElement>,
-    setImage: (value: string) => void,
+    kind: "avatar" | "cover",
   ) {
     const file = event.target.files?.[0];
-    if (file) readImage(file, setImage);
+    if (file) void uploadImage(file, kind);
+    event.target.value = "";
   }
 
   return (
@@ -142,20 +159,29 @@ export function ProfileForm({ user }: { user: User }) {
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(event) => handleImageChange(event, setAvatarUrl)}
+            onChange={(event) => handleImageChange(event, "avatar")}
           />
           <input
             ref={coverInputRef}
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={(event) => handleImageChange(event, setCoverImageUrl)}
+            onChange={(event) => handleImageChange(event, "cover")}
           />
+
+          {uploading && (
+            <p className="text-xs text-muted">
+              Uploading {uploading === "avatar" ? "profile" : "cover"} image...
+            </p>
+          )}
 
           {showAvatarLink && (
             <Input
               value={avatarUrl.startsWith("data:") ? "" : avatarUrl}
-              onChange={(event) => setAvatarUrl(event.target.value)}
+              onChange={(event) => {
+                setAvatarUrl(event.target.value);
+                setAvatarKey(event.target.value);
+              }}
               placeholder="Paste online profile image link"
               aria-label="Online profile image link"
             />
@@ -163,7 +189,10 @@ export function ProfileForm({ user }: { user: User }) {
           {showCoverLink && (
             <Input
               value={coverImageUrl.startsWith("data:") ? "" : coverImageUrl}
-              onChange={(event) => setCoverImageUrl(event.target.value)}
+              onChange={(event) => {
+                setCoverImageUrl(event.target.value);
+                setCoverImageKey(event.target.value);
+              }}
               placeholder="Paste online cover image link"
               aria-label="Online cover image link"
             />

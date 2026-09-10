@@ -1,8 +1,8 @@
-import { ArrowDownRight, ArrowUpRight, type LucideIcon } from "lucide-react";
+﻿import { ArrowDownRight, ArrowUpRight, type LucideIcon } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
-import { formatPercent } from "@/lib/format";
-import { cn } from "@/lib/utils";
+import { formatPercent } from "@/utils/format";
+import { cn } from "@/utils/cn";
 
 export function StatCard({
   label,

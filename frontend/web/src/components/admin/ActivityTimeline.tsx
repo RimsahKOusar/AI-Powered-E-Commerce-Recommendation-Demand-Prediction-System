@@ -1,5 +1,5 @@
-import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
+﻿import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
+import { cn } from "@/utils/cn";
 
 export function ActivityTimeline({
   items,

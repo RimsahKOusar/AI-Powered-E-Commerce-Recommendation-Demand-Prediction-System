@@ -1,9 +1,9 @@
-"use client";
+﻿"use client";
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
-import { formatCompactNumber, formatCurrency } from "@/lib/format";
+import { formatCompactNumber, formatCurrency } from "@/utils/format";
 
 type Slice = { label: string; value: number; color: string };
 type ValueFormat = "compact" | "currency";

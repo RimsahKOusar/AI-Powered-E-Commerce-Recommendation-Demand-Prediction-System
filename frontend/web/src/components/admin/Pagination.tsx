@@ -1,10 +1,10 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/cn";
 
 export function Pagination({
   page,
@@ -31,7 +31,7 @@ export function Pagination({
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border p-4 text-sm">
       <span className="text-muted">
-        Showing <span className="font-medium text-foreground">{from}</span>–
+        Showing <span className="font-medium text-foreground">{from}</span>â€“
         <span className="font-medium text-foreground">{to}</span> of{" "}
         <span className="font-medium text-foreground">{total}</span>
       </span>

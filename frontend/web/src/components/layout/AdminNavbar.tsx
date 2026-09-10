@@ -2,13 +2,14 @@
 
 import { useState, type KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { Bell, ChevronDown, LogOut, Menu, Search, Settings, User as UserIcon } from "lucide-react";
 
 import { Avatar } from "@/components/ui/Avatar";
 import { Badge } from "@/components/ui/Badge";
 import { IconButton } from "@/components/ui/IconButton";
-import { cn } from "@/lib/utils";
-import type { User } from "@/types";
+import { cn } from "@/utils/cn";
+import type { User } from "@/types/auth";
 
 import { ThemeToggle } from "./ThemeToggle";
 
@@ -40,7 +41,7 @@ export function AdminNavbar({
   async function handleLogout() {
     setLoggingOut(true);
     try {
-      await fetch("/api/auth/logout", { method: "POST" });
+      await signOut({ redirect: false });
     } finally {
       // Full navigation — see LoginForm for why this isn't router.push().
       // eslint-disable-next-line @next/next/no-location-assign-relative-destination

@@ -1,11 +1,11 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Boxes, ChevronLeft, ChevronRight, PanelLeftClose, PanelLeftOpen, X } from "lucide-react";
 
-import { ADMIN_NAV } from "@/lib/nav-config";
-import { cn } from "@/lib/utils";
+import { ADMIN_NAV } from "@/utils/constants/nav";
+import { cn } from "@/utils/cn";
 
 function isActive(pathname: string, href: string) {
   return href === "/admin" ? pathname === href : pathname.startsWith(href);
